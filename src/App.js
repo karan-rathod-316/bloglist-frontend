@@ -64,7 +64,7 @@ const App = () => {
         setSuccessMessage(null);
       }, 5000);
     } catch (exception) {
-      setErrorMessage(`Cannot add the blog, please try again!`);
+      setErrorMessage("Cannot add the blog, please try again!");
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -75,10 +75,14 @@ const App = () => {
     const updatedBlog = { ...blog, likes: ++blog.likes };
 
     try {
-      let blog = await blogService.updateBlog(updatedBlog);
-      setBlogs(blogs.concat(blog));
+      let response = await blogService.updateBlog(updatedBlog);
+      if (response === "Post already liked") {
+        return alert("Yes, you love this post, but you've already liked it!!!");
+      } else {
+        setBlogs(blogs.concat());
+      }
     } catch (exception) {
-      setErrorMessage(`Cannot like the blog, please try again!`);
+      setErrorMessage("Cannot like the blog, please try again!");
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -93,7 +97,7 @@ const App = () => {
         await blogService.deleteBlog(blogToDelete);
         setBlogs(blogs.filter((blog) => blog.id !== blogToDelete.id));
       } catch (exception) {
-        setErrorMessage(`Cannot delete the blog, please try again!`);
+        setErrorMessage("Cannot delete the blog, please try again!");
         setTimeout(() => {
           setErrorMessage(null);
         }, 5000);
@@ -111,22 +115,37 @@ const App = () => {
   }
   return (
     <div>
-      <h2>Blogs</h2>
+      <div className="flex justify-around items-center border-b-4 p-4 border-gray-600">
+        <img src="./images/logo.png" className="w-24 h-24" />
+        <div className="flex flex-col">
+          <h1 className="text-3xl font-bold">Micro Stories</h1>
+        </div>
+        <div>
+          <p className="mt-4 text-center text-gray-600 font-bold hover:text-black">
+            Welcome {user.name}!
+          </p>
+          <button
+            className="mt-4 text-center text-indigo-500 border-indigo-200 hover:border-indigo-500 hover:text-indigo-600 justify-self-end"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+        </div>
+      </div>
       {successMessage && <Notification message={successMessage} />}
       {errorMessage && <Notification message={errorMessage} />}
 
-      <p>{user.name} is logged in!</p>
-      <button onClick={handleLogout}>logout</button>
       <Toggleable viewLabel={"Create New Blog"} hideLabel={"Cancel"}>
         <BlogForm handleBlogForm={handleBlogForm} />
       </Toggleable>
-      <div>
+      <div className="flex flex-wrap justify-center">
         {blogs.map((blog) => (
           <Blog
             key={newId()}
             blog={blog}
             handleLikeButton={handleLikeButton}
             handleDeleteButton={handleDeleteButton}
+            user={user}
           />
         ))}
       </div>

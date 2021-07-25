@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from "prop-types";
 
 const BlogForm = ({ handleBlogForm }) => {
   let [newBlog, setNewBlog] = useState({
@@ -9,7 +10,9 @@ const BlogForm = ({ handleBlogForm }) => {
   });
   return (
     <>
-      <h2>Create a new blog</h2>
+      <h2 className="border-b-2 text-black inline-block text-center text-xl font-bold">
+        Create a new micro story!
+      </h2>
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -49,4 +52,9 @@ const BlogForm = ({ handleBlogForm }) => {
     </>
   );
 };
+
+BlogForm.propTypes = {
+  handleBlogForm: PropTypes.func.isRequired,
+};
+
 export default BlogForm;
