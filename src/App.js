@@ -4,7 +4,9 @@ import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import BlogForm from "./components/BlogForm";
 import loginService from "./services/login";
+import signupService from "./services/signup";
 import LoginForm from "./components/LoginForm";
+import SignupForm from "./components/SignupForm";
 import Notification from "./components/Notification";
 import Toggleable from "./components/Togglable";
 
@@ -13,6 +15,7 @@ const App = () => {
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+  const [form, setForm] = useState("Login");
 
   useEffect(() => {
     blogService
@@ -29,6 +32,11 @@ const App = () => {
     }
   }, []);
 
+  const formSwitch = (e) => {
+    e.preventDefault();
+    form === "Login" ? setForm("Signup") : setForm("Login");
+  };
+
   const handleLoginForm = async (username, password) => {
     try {
       const user = await loginService.login({
@@ -43,6 +51,27 @@ const App = () => {
       blogService.setToken(user.token);
     } catch (exception) {
       setErrorMessage("Wrong Credentials");
+      setTimeout(() => {
+        setErrorMessage(null);
+      }, 5000);
+    }
+  };
+
+  const handleSignupForm = async (username, name, password) => {
+    try {
+      await signupService.signup({
+        username,
+        name,
+        password,
+      });
+      setSuccessMessage("Account successfuly created!");
+      setTimeout(() => {
+        setSuccessMessage(null);
+      }, 5000);
+    } catch (exception) {
+      setErrorMessage(
+        "Couldn't create a new user. Ensure that the username and password are more than 4 characters long!"
+      );
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -77,7 +106,9 @@ const App = () => {
     try {
       let response = await blogService.updateBlog(updatedBlog);
       if (response === "Post already liked") {
-        return alert("Yes, you love this post, but you've already liked it!!!");
+        return alert(
+          "Yes, we get it, you really like this post! But you've already clicked on the like button!!!"
+        );
       } else {
         setBlogs(blogs.concat());
       }
@@ -107,10 +138,29 @@ const App = () => {
 
   if (user === null) {
     return (
-      <LoginForm
-        handleLoginForm={handleLoginForm}
-        errorMessage={errorMessage}
-      />
+      <>
+        {form === "Login" && (
+          <LoginForm
+            handleLoginForm={handleLoginForm}
+            errorMessage={errorMessage}
+          />
+        )}
+        {form === "Signup" && (
+          <SignupForm
+            handleSignupForm={handleSignupForm}
+            successMessage={successMessage}
+            errorMessage={errorMessage}
+          />
+        )}
+        <div className="text-center">
+          <button
+            className="mt-4 text-center text-blue-500 border-indigo-200 hover:border-blue-500 hover:text-blue-600"
+            onClick={formSwitch}
+          >
+            {form === "Login" ? "Signup" : "Login"}
+          </button>
+        </div>
+      </>
     );
   }
   return (
@@ -125,7 +175,7 @@ const App = () => {
             Welcome {user.name}!
           </p>
           <button
-            className="mt-4 text-center text-indigo-500 border-indigo-200 hover:border-indigo-500 hover:text-indigo-600 justify-self-end"
+            className="mt-4 text-center text-blue-500 border-indigo-200 hover:border-blue-500 hover:text-blue-600 justify-self-end"
             onClick={handleLogout}
           >
             Logout

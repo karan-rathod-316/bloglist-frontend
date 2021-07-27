@@ -9,9 +9,9 @@ const Blog = ({ blog, handleLikeButton, handleDeleteButton, user }) => {
       <h3 className="text-black font-semibold underline">
         Title: {blog.title}
       </h3>
-      <p>author: {blog.author}</p>
-      <p>url: {blog.url}</p>
-      <p>likes: {blog.likes}</p>
+      <p>Author: {blog.author}</p>
+      <p>Url: {blog.url}</p>
+      <p>Likes: {blog.likes}</p>
       <div className="w-full mt-4 justify-self-between flex justify-between">
         <AwesomeButton type="secondary" onPress={() => handleLikeButton(blog)}>
           Like!
