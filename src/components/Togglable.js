@@ -1,7 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useImperativeHandle } from "react";
 import PropTypes from "prop-types";
 
-const Toggleable = (props) => {
+const Toggleable = React.forwardRef((props, ref) => {
   const [visible, setVisible] = useState(false);
 
   const hide = { display: visible ? "none" : "" };
@@ -10,6 +10,12 @@ const Toggleable = (props) => {
   const toggleVisibility = () => {
     setVisible(!visible);
   };
+
+  useImperativeHandle(ref, () => {
+    return {
+      toggleVisibility,
+    };
+  });
 
   return (
     <div className="m-4 flex justify-center text-center">
@@ -30,7 +36,9 @@ const Toggleable = (props) => {
       </div>
     </div>
   );
-};
+});
+
+Toggleable.displayName = Toggleable;
 
 Toggleable.propTypes = {
   viewLabel: PropTypes.string.isRequired,

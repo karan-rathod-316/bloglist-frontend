@@ -1,21 +1,25 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import newId from "react-id-generator";
 import Blog from "./components/Blog";
 import blogService from "./services/blogs";
 import BlogForm from "./components/BlogForm";
 import loginService from "./services/login";
 import signupService from "./services/signup";
+import Header from "./components/Header";
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
 import Notification from "./components/Notification";
 import Toggleable from "./components/Togglable";
 
 const App = () => {
+  // state management
   const [blogs, setBlogs] = useState([]);
   const [user, setUser] = useState(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [form, setForm] = useState("Login");
+
+  const blogFormRef = useRef();
 
   useEffect(() => {
     blogService
@@ -32,11 +36,13 @@ const App = () => {
     }
   }, []);
 
+  // login & signup form switcher
   const formSwitch = (e) => {
     e.preventDefault();
     form === "Login" ? setForm("Signup") : setForm("Login");
   };
 
+  // form and interaction functions
   const handleLoginForm = async (username, password) => {
     try {
       const user = await loginService.login({
@@ -86,14 +92,17 @@ const App = () => {
 
   const handleBlogForm = async (newBlog) => {
     try {
+      blogFormRef.current.toggleVisibility();
       const blog = await blogService.createBlog(newBlog);
       setBlogs(blogs.concat(blog));
       setSuccessMessage(`${blog.title} was successfuly added!`);
       setTimeout(() => {
         setSuccessMessage(null);
-      }, 5000);
+      }, 3000);
     } catch (exception) {
-      setErrorMessage("Cannot add the blog, please try again!");
+      setErrorMessage(
+        "Cannot add the blog, please ensure all the details are entered correctly!"
+      );
       setTimeout(() => {
         setErrorMessage(null);
       }, 5000);
@@ -135,7 +144,7 @@ const App = () => {
       }
     }
   };
-
+  // display login form if user is null
   if (user === null) {
     return (
       <>
@@ -164,40 +173,34 @@ const App = () => {
     );
   }
   return (
+    // display blogs if user is logged in
     <div>
-      <div className="flex justify-around items-center border-b-4 p-4 border-gray-600">
-        <img src="./images/logo.png" className="w-24 h-24" />
-        <div className="flex flex-col">
-          <h1 className="text-3xl font-bold">Micro Stories</h1>
-        </div>
-        <div>
-          <p className="mt-4 text-center text-gray-600 font-bold hover:text-black">
-            Welcome {user.name}!
-          </p>
-          <button
-            className="mt-4 text-center text-blue-500 border-indigo-200 hover:border-blue-500 hover:text-blue-600 justify-self-end"
-            onClick={handleLogout}
-          >
-            Logout
-          </button>
-        </div>
-      </div>
+      <Header handleLogout={handleLogout} name={user.name} />
+
+      <Toggleable
+        viewLabel={"Create New Blog"}
+        hideLabel={"Cancel"}
+        ref={blogFormRef}
+      >
+        <BlogForm handleBlogForm={handleBlogForm} />
+      </Toggleable>
+
       {successMessage && <Notification message={successMessage} />}
       {errorMessage && <Notification message={errorMessage} />}
 
-      <Toggleable viewLabel={"Create New Blog"} hideLabel={"Cancel"}>
-        <BlogForm handleBlogForm={handleBlogForm} />
-      </Toggleable>
       <div className="flex flex-wrap justify-center">
-        {blogs.map((blog) => (
-          <Blog
-            key={newId()}
-            blog={blog}
-            handleLikeButton={handleLikeButton}
-            handleDeleteButton={handleDeleteButton}
-            user={user}
-          />
-        ))}
+        {blogs.map((blog) => {
+          const isCreator = blog.user.username === user.username;
+          return (
+            <Blog
+              key={newId()}
+              blog={blog}
+              handleLikeButton={handleLikeButton}
+              handleDeleteButton={handleDeleteButton}
+              isCreator={isCreator}
+            />
+          );
+        })}
       </div>
     </div>
   );
