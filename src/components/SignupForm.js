@@ -22,6 +22,9 @@ const SignupForm = ({ handleSignupForm, successMessage, errorMessage }) => {
         onSubmit={(e) => {
           e.preventDefault();
           handleSignupForm(username, name, password);
+          setUsername("");
+          setPassword("");
+          setName("");
         }}
       >
         <div className="mt-4 flex flex-col w-full">

@@ -16,8 +16,13 @@ const BlogForm = ({ handleBlogForm }) => {
       <form
         onSubmit={(e) => {
           e.preventDefault();
-
           handleBlogForm(newBlog);
+          setNewBlog({
+            title: "",
+            author: "",
+            url: "",
+            likes: 0,
+          });
         }}
       >
         <div>

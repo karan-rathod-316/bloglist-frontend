@@ -21,10 +21,14 @@ const App = () => {
 
   const blogFormRef = useRef();
 
-  useEffect(() => {
+  const fetchBlog = () => {
     blogService
       .getAll()
       .then((blogs) => setBlogs(blogs.sort((a, b) => b.likes - a.likes)));
+  };
+
+  useEffect(() => {
+    fetchBlog();
   }, []);
 
   useEffect(() => {
@@ -76,7 +80,7 @@ const App = () => {
       }, 5000);
     } catch (exception) {
       setErrorMessage(
-        "Couldn't create a new user. Ensure that the username and password are more than 4 characters long!"
+        "Couldn't create a new user. Ensure that the username, name and password are more than 4 characters long!"
       );
       setTimeout(() => {
         setErrorMessage(null);
@@ -94,9 +98,9 @@ const App = () => {
     try {
       blogFormRef.current.toggleVisibility();
       const blog = await blogService.createBlog(newBlog);
-      setBlogs(blogs.concat(blog));
+      fetchBlog();
       setSuccessMessage(`${blog.title} was successfuly added!`);
-      setTimeout(() => {
+      setTimeout(async () => {
         setSuccessMessage(null);
       }, 3000);
     } catch (exception) {
@@ -105,7 +109,7 @@ const App = () => {
       );
       setTimeout(() => {
         setErrorMessage(null);
-      }, 5000);
+      }, 3000);
     }
   };
 
